@@ -33,9 +33,10 @@ tx_count_df = tx_count_df['TRANSACTION_COUNT']
 min_df = nft_luna_price_df.groupby(['BLOCK_TIMESTAMP', 'NFT_TYPE']).min().rename(columns={'NFT_LUNA_PRICE':'MIN_LUNA', 'NFT_UST_PRICE_AT_PURCHASE':'MIN_UST'})
 max_df = nft_luna_price_df.groupby(['BLOCK_TIMESTAMP', 'NFT_TYPE']).max().rename(columns={'NFT_LUNA_PRICE':'MAX_LUNA', 'NFT_UST_PRICE_AT_PURCHASE':'MAX_UST'})
 median_df = nft_luna_price_df.groupby(['BLOCK_TIMESTAMP', 'NFT_TYPE']).median().rename(columns={'NFT_LUNA_PRICE':'MEDIAN_LUNA', 'NFT_UST_PRICE_AT_PURCHASE':'MEDIAN_UST'})
+
 cum_sum = nft_luna_price_df.groupby(['BLOCK_TIMESTAMP', 'NFT_TYPE']).sum().rename(columns={'NFT_LUNA_PRICE':'TOTAL_LUNA_CUMULATIVE', 'NFT_UST_PRICE_AT_PURCHASE':'TOTAL_UST_CUMULATIVE'}).cumsum(axis=0)
 
-master_df = pd.concat([total_df, tx_count_df, average_df, min_df, max_df, median_df, cum_sum], axis = 1)
+master_df = pd.concat([total_df, tx_count_df, average_df, min_df, max_df, median_df, cum_sum], axis = 1).reset_index().sort_values(by=['BLOCK_TIMESTAMP', 'NFT_TYPE'], ascending=False)
 
 st.sidebar.header("Choose Columns:")
 columns = st.sidebar.multiselect(
