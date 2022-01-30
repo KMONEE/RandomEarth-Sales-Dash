@@ -95,6 +95,14 @@ st.markdown("""
 """)
 st.dataframe(master_df)
 
+st.download_button(
+"Press to Download",
+master_df.to_csv().encode('utf-8'),
+"master_dataframe.csv",
+"text/csv",
+key='download-csv'
+)
+
 st.markdown("""
 # Line Chart Builder
 """)
