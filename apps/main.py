@@ -33,119 +33,99 @@ tx_count_df = tx_count_df['TRANSACTION_COUNT']
 min_df = nft_luna_price_df.groupby(['BLOCK_TIMESTAMP', 'NFT_TYPE']).min().rename(columns={'NFT_LUNA_PRICE':'MIN_LUNA', 'NFT_UST_PRICE_AT_PURCHASE':'MIN_UST'})
 max_df = nft_luna_price_df.groupby(['BLOCK_TIMESTAMP', 'NFT_TYPE']).max().rename(columns={'NFT_LUNA_PRICE':'MAX_LUNA', 'NFT_UST_PRICE_AT_PURCHASE':'MAX_UST'})
 median_df = nft_luna_price_df.groupby(['BLOCK_TIMESTAMP', 'NFT_TYPE']).median().rename(columns={'NFT_LUNA_PRICE':'MEDIAN_LUNA', 'NFT_UST_PRICE_AT_PURCHASE':'MEDIAN_UST'})
-
 cum_sum = nft_luna_price_df.groupby(['BLOCK_TIMESTAMP', 'NFT_TYPE']).sum().rename(columns={'NFT_LUNA_PRICE':'TOTAL_LUNA_CUMULATIVE', 'NFT_UST_PRICE_AT_PURCHASE':'TOTAL_UST_CUMULATIVE'}).cumsum(axis=0)
 
 master_df = pd.concat([total_df, tx_count_df, average_df, min_df, max_df, median_df, cum_sum], axis = 1).reset_index().sort_values(by=['BLOCK_TIMESTAMP', 'NFT_TYPE'], ascending=False)
 
-st.sidebar.header("Choose Columns:")
-columns = st.sidebar.multiselect(
-    "Select the columns to plot",
-    options = master_df.columns,
-    default = master_df.columns.min()
-)
+def app():
+    st.sidebar.header("Choose Columns:")
+    columns = st.sidebar.multiselect(
+        "Select the columns to plot",
+        options = master_df.columns,
+        default = master_df.columns.min()
+    )
 
-line = px.line(
-    master_df, #this is the dataframe you are trying to plot
-    x = "BLOCK_TIMESTAMP",
-    y = columns,
-    
-    color = "NFT_TYPE",
-    orientation = "v",
-    template = "plotly_white",
-    height = 600
-)
+    line = px.line(
+        master_df, #this is the dataframe you are trying to plot
+        x = "BLOCK_TIMESTAMP",
+        y = columns,
+        
+        color = "NFT_TYPE",
+        orientation = "v",
+        template = "plotly_white",
+        height = 600,
+        width = 1000
+    )
 
-bar = px.bar(
-    master_df, #this is the dataframe you are trying to plot
-    x = "BLOCK_TIMESTAMP",
-    y = columns,
-    
-    color = "NFT_TYPE",
-    orientation = "v",
-    template = "plotly_white",
-    height = 600
-)
+    bar = px.bar(
+        master_df, #this is the dataframe you are trying to plot
+        x = "BLOCK_TIMESTAMP",
+        y = columns,
+        
+        color = "NFT_TYPE",
+        orientation = "v",
+        template = "plotly_white",
+        height = 600,
+        width = 1000
+    )
 
-ust_pie_df = master_df[['NFT_TYPE', 'TOTAL_UST']].groupby(['NFT_TYPE']).sum()
-ust_pie = px.pie(
-    ust_pie_df, #this is the dataframe you are trying to plot
-    values = 'TOTAL_UST',
-    names = ust_pie_df.index
-)
-
-
-counts_pie_df = master_df[['NFT_TYPE', 'TRANSACTION_COUNT']].groupby(['NFT_TYPE']).sum()
-counts_pie = px.pie(
-    counts_pie_df, #this is the dataframe you are trying to plot
-    values = 'TRANSACTION_COUNT',
-    names = counts_pie_df.index
-)
+    ust_pie_df = master_df[['NFT_TYPE', 'TOTAL_UST']].groupby(['NFT_TYPE']).sum()
+    ust_pie = px.pie(
+        ust_pie_df, #this is the dataframe you are trying to plot
+        values = 'TOTAL_UST',
+        names = ust_pie_df.index,
+        width = 1000
+    )
 
 
-st.title('Levana NFT Sales Tracking V1 - Randomearth ')
-st.text("""
-V1 of the sales tracking dash for RE sales only; rarity stats next followed by 
-Knowhere
-""")
-st.markdown("""
----
-""")
-
-st.markdown("""
-### Master Dataframe
-""")
-st.dataframe(master_df)
-
-st.download_button(
-"Press to Download",
-master_df.to_csv().encode('utf-8'),
-"master_dataframe.csv",
-"text/csv",
-key='download-csv'
-)
-
-st.markdown("""
-# Line Chart Builder
-""")
-st.plotly_chart(line)
-
-st.markdown("""
-# Bar Chart Builder
-""")
-st.plotly_chart(bar)
-
-col1, col2 = st.columns(2)
+    counts_pie_df = master_df[['NFT_TYPE', 'TRANSACTION_COUNT']].groupby(['NFT_TYPE']).sum()
+    counts_pie = px.pie(
+        counts_pie_df, #this is the dataframe you are trying to plot
+        values = 'TRANSACTION_COUNT',
+        names = counts_pie_df.index,
+        width = 1000
+    )
 
 
-st.markdown("""
-### UST Exchanged to Date by NFT
-""")
-st.plotly_chart(ust_pie, use_column_width=True)
+    st.title('Tracking for all NFTS (not counting rarity)')
+    # st.text("""
+    # V1 of the sales tracking dash for RE sales only; rarity stats next followed by 
+    # Knowhere
+    # """)
+    st.markdown("""
+    ---
+    """)
 
-st.markdown("""
-### Transaction Count to Date by NFT
-""")
-st.plotly_chart(counts_pie, use_column_width=True)
+    st.markdown("""
+    ### Master Dataframe
+    """)
+    st.dataframe(master_df)
+
+    st.download_button(
+    "Press to Download",
+    master_df.to_csv().encode('utf-8'),
+    "master_dataframe.csv",
+    "text/csv",
+    key='download-csv'
+    )
+
+    st.markdown("""
+    # Line Chart Builder
+    """)
+    st.plotly_chart(line)
+
+    st.markdown("""
+    # Bar Chart Builder
+    """)
+    st.plotly_chart(bar)
 
 
+    st.markdown("""
+    ### UST Exchanged to Date by NFT
+    """)
+    st.plotly_chart(ust_pie, use_column_width=True)
 
-
-
-
-
-
-# tx_count_pie = px.pie(
-#     pd.DataFrame(nft_ust_price_df.count()).reset_index().rename(columns={0:"Transaction Counts"}), #this is the dataframe you are trying to plot
-#     values = 'Transaction Counts',
-#     names = 'index'
-# )
-# st.plotly_chart(tx_count_pie)
-
-
-
-
-
-#st.dataframe(pd.DataFrame(nft_ust_price_df.count()).reset_index().rename(columns={0:"Transaction Counts"})) #for pie chart of value counts
-#st.dataframe(nft_ust_price_df.apply(lambda x: (x > 0).sum(), axis =  1).groupby('BLOCK_TIMESTAMP').sum())
-#st.dataframe(nft_luna_ust_df.groupby('BLOCK_TIMESTAMP').sum())
+    st.markdown("""
+    ### Transaction Count to Date by NFT
+    """)
+    st.plotly_chart(counts_pie, use_column_width=True)
