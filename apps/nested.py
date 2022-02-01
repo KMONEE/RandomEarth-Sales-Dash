@@ -25,18 +25,18 @@ max_df = nested_rarity_merge.groupby(['BLOCK_TIMESTAMP', 'RARITY']).max().rename
 median_df = nested_rarity_merge.groupby(['BLOCK_TIMESTAMP', 'RARITY']).median().rename(columns={'NFT_LUNA_PRICE':'MEDIAN_LUNA', 'NFT_UST_PRICE_AT_PURCHASE':'MEDIAN_UST'})
 cum_sum = nested_rarity_merge.groupby(['BLOCK_TIMESTAMP', 'RARITY']).sum().rename(columns={'NFT_LUNA_PRICE':'TOTAL_LUNA_CUMULATIVE', 'NFT_UST_PRICE_AT_PURCHASE':'TOTAL_UST_CUMULATIVE'}).cumsum(axis=0)
 
-dust_master = pd.concat([total_df, tx_count_df, average_df, min_df, max_df, median_df, cum_sum], axis = 1).reset_index().sort_values(by=['BLOCK_TIMESTAMP', 'RARITY'], ascending=False)
+nested_master = pd.concat([total_df, tx_count_df, average_df, min_df, max_df, median_df, cum_sum], axis = 1).reset_index().sort_values(by=['BLOCK_TIMESTAMP', 'RARITY'], ascending=False)
 
 def app():
     st.sidebar.header("Choose Columns:")
     columns = st.sidebar.multiselect(
         "Select the columns to plot",
-        options = dust_master.columns,
-        default = dust_master.columns.min()
+        options = nested_master.columns,
+        default = nested_master.columns.min()
     )
 
     line = px.line(
-        dust_master, #this is the dataframe you are trying to plot
+        nested_master, #this is the dataframe you are trying to plot
         x = "BLOCK_TIMESTAMP",
         y = columns,
         
@@ -48,7 +48,7 @@ def app():
     )
 
     bar = px.bar(
-        dust_master, #this is the dataframe you are trying to plot
+        nested_master, #this is the dataframe you are trying to plot
         x = "BLOCK_TIMESTAMP",
         y = columns,
         
@@ -59,7 +59,7 @@ def app():
         width = 1000
     )
 
-    ust_pie_df = dust_master[['RARITY', 'TOTAL_UST']].groupby(['RARITY']).sum()
+    ust_pie_df = nested_master[['RARITY', 'TOTAL_UST']].groupby(['RARITY']).sum()
     ust_pie = px.pie(
         ust_pie_df, #this is the dataframe you are trying to plot
         values = 'TOTAL_UST',
@@ -68,7 +68,7 @@ def app():
     )
 
 
-    counts_pie_df = dust_master[['RARITY', 'TRANSACTION_COUNT']].groupby(['RARITY']).sum()
+    counts_pie_df = nested_master[['RARITY', 'TRANSACTION_COUNT']].groupby(['RARITY']).sum()
     counts_pie = px.pie(
         counts_pie_df, #this is the dataframe you are trying to plot
         values = 'TRANSACTION_COUNT',
@@ -88,11 +88,11 @@ def app():
     st.markdown("""
     ### Master Dataframe
     """)
-    st.dataframe(dust_master)
+    st.dataframe(nested_master)
 
     st.download_button(
     "Press to Download",
-    dust_master.to_csv().encode('utf-8'),
+    nested_master.to_csv().encode('utf-8'),
     "master_dataframe.csv",
     "text/csv",
     key='download-csv'
