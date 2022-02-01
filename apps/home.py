@@ -10,5 +10,5 @@ def app():
     st.text('Includes rarity stats for Meteors, Meteor Dust, and Unnested Eggs; the rest will follow shortly')
 
     
-    levana = Image.open("levana.png")
+    levana = Image.open("sales.png")
     st.image(levana)
