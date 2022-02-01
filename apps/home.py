@@ -7,7 +7,8 @@ import requests
 def app():
 
     st.markdown("""## Levana NFT Sales Tracking V2 - Randomearth """)
-    st.text('Includes rarity stats for Meteors, Meteor Dust, and Unnested Eggs; the rest will follow shortly')
+    st.text('Includes Stats for all NFTs, and all Rarity/Faction tiers per NFT')
+    st.text('Github: https://github.com/KMONEE/RandomEarth-Sales-Dash')
 
     
     levana = Image.open("sales.png")
