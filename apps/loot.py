@@ -89,7 +89,7 @@ def app():
     st.download_button(
     "Press to Download",
     loot_master.to_csv().encode('utf-8'),
-    "master_dataframe.csv",
+    "master_dataframe_loot.csv",
     "text/csv",
     key='download-csv'
     )

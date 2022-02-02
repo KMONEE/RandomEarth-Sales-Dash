@@ -87,7 +87,7 @@ def app():
     st.download_button(
     "Press to Download",
     meteors_master.to_csv().encode('utf-8'),
-    "master_dataframe.csv",
+    "master_dataframe_meteors.csv",
     "text/csv",
     key='download-csv'
     )
