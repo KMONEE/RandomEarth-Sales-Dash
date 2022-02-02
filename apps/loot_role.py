@@ -79,7 +79,7 @@ def app():
 
     st.title('Loot')
     st.text("""
-    Loot stats by role
+    Loot stats by Role - Faction
     """)
     st.markdown("""
     ---
