@@ -7,7 +7,7 @@ import ast
 
 def app():
     st.sidebar.header("Choose Grouping:")
-    grouping_check = st.sidebar.checkbox('Group Without Rarirty'
+    grouping_check = st.sidebar.checkbox('Group Without Role'
     )
 
     if grouping_check:
