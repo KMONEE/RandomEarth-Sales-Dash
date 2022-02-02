@@ -7,7 +7,7 @@ import ast
 
 def app():
     st.sidebar.header("Choose Grouping:")
-    grouping_check = st.sidebar.checkbox('Group Without Role'
+    grouping_check = st.sidebar.checkbox('Group Without Role - Faction'
     )
 
     if grouping_check:
@@ -15,14 +15,15 @@ def app():
         merge_cols = ['BLOCK_TIMESTAMP', 'NFT_LUNA_PRICE', 'NFT_UST_PRICE_AT_PURCHASE']
 
     else:
-        group_master = ['BLOCK_TIMESTAMP', 'ROLE']
-        merge_cols = ['BLOCK_TIMESTAMP', 'ROLE', 'NFT_LUNA_PRICE', 'NFT_UST_PRICE_AT_PURCHASE']
+        group_master = ['BLOCK_TIMESTAMP', 'ROLE', 'FACTION']
+        merge_cols = ['BLOCK_TIMESTAMP', 'ROLE', 'FACTION', 'NFT_LUNA_PRICE', 'NFT_UST_PRICE_AT_PURCHASE']
 
 
     loot = pd.read_json('https://api.flipsidecrypto.com/api/v2/queries/2208cc91-e624-4b40-b666-f65c8b6405f8/data/latest')
     loot_ROLE = pd.read_csv('http://165.22.125.123/loot_nfts.csv')
     loot_ROLE_merge = pd.merge(loot, loot_ROLE[['token_id', 'traits']], left_on='TOKEN_ID', right_on='token_id', how='inner')
     loot_ROLE_merge['ROLE'] = loot_ROLE_merge['traits'].apply(lambda x: ast.literal_eval(x).get('Role'))
+    loot_ROLE_merge['FACTION'] = loot_ROLE_merge['traits'].apply(lambda x: ast.literal_eval(x).get('Faction'))
     loot_ROLE_merge.pop('traits')
 
     loot_ROLE_merge = loot_ROLE_merge[merge_cols]
@@ -40,6 +41,9 @@ def app():
     cum_sum = loot_ROLE_merge.groupby(group_master).sum().rename(columns={'NFT_LUNA_PRICE':'TOTAL_LUNA_CUMULATIVE', 'NFT_UST_PRICE_AT_PURCHASE':'TOTAL_UST_CUMULATIVE'}).cumsum(axis=0)
 
     loot_master = pd.concat([total_df, tx_count_df, average_df, min_df, max_df, median_df, cum_sum], axis = 1).reset_index().sort_values(by=group_master, ascending=False)
+
+    if not grouping_check:
+        loot_master['RF'] = loot_master['ROLE'] + (' - ') + loot_master['FACTION']
 
     st.sidebar.header("Choose Columns:")
     columns = st.sidebar.multiselect(
@@ -61,12 +65,12 @@ def app():
         line = px.line(loot_master, x = "BLOCK_TIMESTAMP", log_y = t_f, y = columns, orientation = "v", template = "plotly_white", height = 600, width = 1000)
         bar = px.bar(loot_master, x = "BLOCK_TIMESTAMP", log_y = t_f, y = columns, orientation = "v", template = "plotly_white", height = 600, width = 1000)
     else:
-        line = px.line(loot_master, x = "BLOCK_TIMESTAMP", log_y = t_f, y = columns, color = "ROLE", orientation = "v", template = "plotly_white", height = 600, width = 1000)
-        bar = px.bar(loot_master, x = "BLOCK_TIMESTAMP", log_y = t_f, y = columns, color = "ROLE", orientation = "v", template = "plotly_white", height = 600, width = 1000)
+        line = px.line(loot_master, x = "BLOCK_TIMESTAMP", log_y = t_f, y = columns, color = "RF", orientation = "v", template = "plotly_white", height = 600, width = 1000)
+        bar = px.bar(loot_master, x = "BLOCK_TIMESTAMP", log_y = t_f, y = columns, color = "RF", orientation = "v", template = "plotly_white", height = 600, width = 1000)
         
-        ust_pie_df = loot_master[['ROLE', 'TOTAL_UST']].groupby(['ROLE']).sum()
+        ust_pie_df = loot_master[['RF', 'TOTAL_UST']].groupby(['RF']).sum()
         ust_pie = px.pie(ust_pie_df, values = 'TOTAL_UST', names = ust_pie_df.index, width = 1000)
-        counts_pie_df = loot_master[['ROLE', 'TRANSACTION_COUNT']].groupby(['ROLE']).sum()
+        counts_pie_df = loot_master[['RF', 'TRANSACTION_COUNT']].groupby(['RF']).sum()
         counts_pie = px.pie(counts_pie_df, values = 'TRANSACTION_COUNT', names = counts_pie_df.index, width = 1000)
 
 
