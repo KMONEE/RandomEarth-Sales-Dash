@@ -83,6 +83,27 @@ def app():
 
     master_2 = pd.concat([total_df, tx_count_df, average_df, min_df, max_df, median_df, cum_sum], axis = 1).reset_index().sort_values(by=group_master, ascending=False).reset_index(drop=True)
     
+    all_df = pd.DataFrame({
+    'BLOCK_TIMESTAMP':[master_2['BLOCK_TIMESTAMP'].max()],
+    'NFT_TYPE':['ALL'],
+    'RARITY':['ALL'],
+    'TOTAL_LUNA':[master_2['TOTAL_LUNA'].sum()],
+    'TOTAL_UST':[master_2['TOTAL_UST'].sum()],
+    'TRANSACTION_COUNT':[master_2['TRANSACTION_COUNT'].sum()],
+    'AVERAGE_LUNA':[master_2['AVERAGE_LUNA'].mean()],
+    'AVERAGE_UST':[master_2['AVERAGE_UST'].mean()],
+    'MIN_LUNA':[master_2['MIN_LUNA'].min()],
+    'MIN_UST':[master_2['MIN_UST'].min()],
+    'MAX_LUNA':[master_2['MAX_LUNA'].max()],
+    'MAX_UST':[master_2['MAX_UST'].max()],
+    'MEDIAN_LUNA':[master_2['MEDIAN_LUNA'].median()],
+    'MEDIAN_UST':[master_2['MEDIAN_UST'].median()],
+    'TOTAL_LUNA_CUMULATIVE':[master_2['TOTAL_LUNA_CUMULATIVE'].sum()],
+    'TOTAL_UST_CUMULATIVE':[master_2['TOTAL_UST_CUMULATIVE'].sum()]
+    })
+
+    master_2 = pd.concat([all_df, master_2])
+    
     st.markdown("""
     ## All transactions, grouped by timestamp
     """)
