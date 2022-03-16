@@ -11,19 +11,19 @@ def app():
     )
 
     if grouping_check:
-        group_master = ['BLOCK_TIMESTAMP']
-        merge_cols = ['BLOCK_TIMESTAMP', 'NFT_LUNA_PRICE', 'NFT_UST_PRICE_AT_PURCHASE']
+        group_master = ['BLOCK_TIMESTAMP', 'TYPE']
+        merge_cols = ['BLOCK_TIMESTAMP', 'TYPE', 'NFT_LUNA_PRICE', 'NFT_UST_PRICE_AT_PURCHASE']
 
     else:
-        group_master = ['BLOCK_TIMESTAMP', 'FACTION']
-        merge_cols = ['BLOCK_TIMESTAMP', 'FACTION', 'NFT_LUNA_PRICE', 'NFT_UST_PRICE_AT_PURCHASE']
+        group_master = ['BLOCK_TIMESTAMP', 'FACTION', 'TYPE']
+        merge_cols = ['BLOCK_TIMESTAMP', 'FACTION', 'TYPE', 'NFT_LUNA_PRICE', 'NFT_UST_PRICE_AT_PURCHASE']
 
 
     loot = pd.read_json('https://api.flipsidecrypto.com/api/v2/queries/2208cc91-e624-4b40-b666-f65c8b6405f8/data/latest')
     loot_faction = pd.read_csv('http://165.22.125.123/loot_nfts.csv')
     loot_faction_merge = pd.merge(loot, loot_faction[['token_id', 'traits']], left_on='TOKEN_ID', right_on='token_id', how='inner')
     loot_faction_merge['FACTION'] = loot_faction_merge['traits'].apply(lambda x: ast.literal_eval(x).get('Faction'))
-    loot_ROLE_merge['TYPE'] = loot_ROLE_merge['traits'].apply(lambda x: ast.literal_eval(x).get('Type'))
+    loot_faction_merge['TYPE'] = loot_faction_merge['traits'].apply(lambda x: ast.literal_eval(x).get('Type'))
     loot_faction_merge.pop('traits')
 
     loot_faction_merge = loot_faction_merge[merge_cols]
